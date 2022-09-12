@@ -24,7 +24,6 @@ def date_to_days(tab_date):
     return day
 dates = date_to_days(dates)
 
-
 def timeToFloat(time):
     hr, min, sec = [float(x) for x in time.split(':')]
     return (hr * 3600 + min * 60 + sec) / 86400
@@ -32,10 +31,23 @@ def timeToFloat(time):
 times=[i[1] for i in x]
 for i in range(1, int(len(times))):
     times[i] = timeToFloat(times[i])
+times = numpy.array(times)
 
-times = numpy.array(times, ndim=2)
-print(numpy.concatenate((times.T, dates.T), axis=0))
+x = numpy.array(x)
 
-#concatener puis ajouter au gros tableau avec le reste des données
+x = numpy.delete(x, 0, 0)
+x = numpy.delete(x, 0, 1)
+x = numpy.delete(x, 0, 1)
+
+dates_times = numpy.zeros((int(len(dates)), 2))
+for i in range(1, int(len(dates))):
+    dates_times[i][0] = dates[i]
+    dates_times[i][1] = times[i]
+
+dates_times = numpy.delete(dates_times, 0, 0)
+
+x = numpy.concatenate((dates_times, x),axis=1)
+
+
 
 
