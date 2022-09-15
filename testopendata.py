@@ -4,6 +4,9 @@ from datetime import *
 reader = csv.reader(open("Occupancy_Estimation.csv", "r"),
                     delimiter=",")
 x = list(reader)
+
+x = numpy.delete(x, -1, axis=1)
+print(numpy.shape(x))
 # ligne servant à limiter la taille des données (donc des calculs) lors des tests
 #x = x[0:2000]
 print(numpy.shape(x))
@@ -122,3 +125,5 @@ Xnew = numpy.dot(x, numpy.transpose(FeatureVector))
 
 print("Xnew : ", Xnew)
 print("Xnew shape : ", numpy.shape(Xnew))
+
+# a comparer avec slecetkbest de sklearn
