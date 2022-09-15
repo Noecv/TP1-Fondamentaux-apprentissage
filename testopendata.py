@@ -48,6 +48,11 @@ dates_times = numpy.delete(dates_times, 0, 0)
 
 x = numpy.concatenate((dates_times, x),axis=1)
 
-
-
+(n, p) = numpy.shape(x)
+Z = numpy.zeros((n, p))
+print(type(Z))
+for i in range(1, p):
+    for j in range(1, n):
+        #Z(j, i) = (X(j, i) - mu(:, i)) / (sigma(:, i));
+        Z[j, i] = (x[j, i] - numpy.mean[:, i])/
 
