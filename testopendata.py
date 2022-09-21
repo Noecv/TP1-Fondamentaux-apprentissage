@@ -83,7 +83,7 @@ for i in range(0, int(len(dates))):
 x = numpy.concatenate((dates_times, x), axis=1)
 
 # On transforme toutes les valeurs en float pour pouvoir les utiliser
-x = x.astype(numpy.float)
+x = x.astype(float)
 # on normalise les données
 x = (x - x.mean(axis=0)) / x.std(axis=0)
 
@@ -103,17 +103,10 @@ FeatureVector = numpy.zeros((0, p))
 
 for i in range(0, len(valeurs_propres)):
     if valeurs_propres[i] > 1:
-        print(i)
         FeatureVector = numpy.concatenate(
-            (FeatureVector, [vecteurs_propres[i]]), axis=0)
+            (FeatureVector, [vecteurs_propres[:,i]]), axis=0)
 
 
-print(numpy.shape(FeatureVector))
-print(FeatureVector)
 Xnew = numpy.dot(x, numpy.transpose(FeatureVector))
-#Xnew = numpy.transpose(FeatureVector)*x
-
 print("Xnew : ", Xnew)
 print("Xnew shape : ", numpy.shape(Xnew))
-
-# a comparer avec slecetkbest de sklearn
