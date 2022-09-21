@@ -99,7 +99,16 @@ data = numpy.concatenate((dates_times, data), axis=1)
 # On transforme toutes les valeurs en float pour pouvoir les utiliser
 data = data.astype(numpy.float)
 # on normalise les données
-data = (data - data.mean(axis=0)) / data.std(axis=0)
+data = sklearn.preprocessing.normalize(data)
 
+
+for i in range(0, int(len(data))):
+    for j in range(0, int(len(data[0]))):
+        if type(data[i][j]) != numpy.float64:
+            print("error")
+
+target_data = target_data.astype(numpy.float)
 
 data = SelectKBest(f_regression, k=3).fit_transform(data, target_data)
+with open("randomfile.txt", "w") as external_file:
+    external_file.write(str(data))
