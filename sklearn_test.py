@@ -7,7 +7,6 @@ from sklearn.decomposition import PCA
 reader = csv.reader(open("Occupancy_Estimation.csv", "r"),
                     delimiter=",")
 x = list(reader)
-
 # delete la premiere ligne
 # delete la derniere colonne : fait office de sortie
 x = numpy.delete(x, -1, axis=1)
@@ -86,9 +85,48 @@ for i in range(0, int(len(dates))):
 # on concatene les deux tableaux
 x = numpy.concatenate((dates_times, x), axis=1)
 
-
 sc = StandardScaler()
-x = sc.fit_transform(x)
-pca = PCA(n_components=2)
-x = pca.fit_transform(x)
-print("Xnew shape : ", numpy.shape(x))
+skx1 = sc.fit_transform(x)
+pca = PCA(n_components=3 , svd_solver = 'full')
+skx2 = pca.fit_transform(skx1)
+
+
+x = x.astype(float)
+# on normalise les données
+x = (x - x.mean(axis=0)) / x.std(axis=0)
+
+print("fit identiques : ", numpy.all(numpy.equal(skx1, x)))
+
+(n, p) = numpy.shape(x)
+Z = numpy.zeros((n, p))
+
+
+# On calcule la covariance de x et on obtient une matrice symétrique
+covx = numpy.cov(x, rowvar=False)
+
+
+# eigen value of covx
+valeurs_propres, vecteurs_propres = numpy.linalg.eig(covx)
+
+# calculate featureVector of eigenvalue
+FeatureVector = numpy.zeros((0, p))
+
+for i in range(0, len(valeurs_propres)):
+    if valeurs_propres[i] > 1:
+        FeatureVector = numpy.concatenate(
+            (FeatureVector, [vecteurs_propres[:,i]]), axis=0)
+
+
+Xnew = numpy.dot(x, numpy.transpose(FeatureVector))
+#Xnew = numpy.transpose(FeatureVector)*x
+
+print("Xnew : ", Xnew)
+print("Xnew shape : ", numpy.shape(Xnew))
+
+# a comparer avec slecetkbest de sklearn
+
+print("xnew sklearn :", skx2)
+print("Feature vector :", FeatureVector)
+print("Feature vector sklearn :", pca.components_)
+print("Feature vector identiques : ", numpy.equal(pca.components_, FeatureVector))
+print("matrices finales identiques : ", numpy.equal(skx2, Xnew))
