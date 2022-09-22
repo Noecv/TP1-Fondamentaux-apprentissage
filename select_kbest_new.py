@@ -2,19 +2,18 @@ import csv
 import numpy
 import sklearn
 from datetime import *
-import pandas as pd
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-from sklearn.feature_selection import SelectKBest, f_regression, chi2
+
+from sklearn.feature_selection import SelectKBest, f_regression
 
 
 # Chargement des données
 data = csv.reader(open("Occupancy_Estimation.csv", "r"),
                   delimiter=",")
-data = list(data)
-data = numpy.delete(data, 0, 0)
 
+data = list(data)
+# delete la premiere ligne
+data = numpy.delete(data, 0, 0)
+#recupère les datas de la derniere colonne
 target_data = data[:, -1]
 
 # delete la derniere colonne : fait office de sortie
@@ -25,8 +24,6 @@ data = numpy.delete(data, -1, axis=1)
 dates = [i[0] for i in data]
 
 # Permet de transformer un string en type date
-
-
 def str_date_to_datatime(str_date):
     return datetime.strptime(str_date, '%Y/%m/%d')
 
@@ -36,8 +33,6 @@ for i in range(0, int(len(dates))):
     dates[i] = str_date_to_datatime(dates[i])
 
 # Permet de tranformer une date en int
-
-
 def date_to_integer(date):
     return 10000 * date.year + 100 * date.month + date.day
 
@@ -47,8 +42,6 @@ for i in range(0, int(len(dates))):
     dates[i] = date_to_integer(dates[i])
 
 # Permet de transformer nos dates en nombre de jours effectifs sur lesquels les mesures sont effectuées
-
-
 def date_to_days(tab_date):
     day = numpy.zeros(int(len(tab_date)))
     for i in range(1, int(len(tab_date))):
@@ -63,14 +56,12 @@ def date_to_days(tab_date):
 dates = date_to_days(dates)
 
 # Donne l'heure de la journée normalisée de 0 à 1
-
-
 def timeToFloat(time):
     hr, min, sec = [float(data) for data in time.split(':')]
     return (hr * 3600 + min * 60 + sec) / 86400
 
 
-# On edatatraie la colonne des horaires
+# On extraie la colonne des horaires
 times = [i[1] for i in data]
 
 # Rempli les heures normalisées de 0 à 1
@@ -85,7 +76,7 @@ data = numpy.array(data)
 data = numpy.delete(data, 0, 1)
 data = numpy.delete(data, 0, 1)
 
-# On créer un tableau de 0 avec 2 colones
+# On crée un tableau de 0 avec 2 colones
 dates_times = numpy.zeros((int(len(dates)), 2))
 
 # On remplis le tableau avec les dates et les heures
@@ -101,14 +92,8 @@ data = data.astype(numpy.float)
 # on normalise les données
 data = sklearn.preprocessing.normalize(data)
 
-
-for i in range(0, int(len(data))):
-    for j in range(0, int(len(data[0]))):
-        if type(data[i][j]) != numpy.float64:
-            print("error")
-
+#converti datas de sortie/cible en float
 target_data = target_data.astype(numpy.float)
-
+#selectionne les 3 colonnes les plus pertinentes
 data = SelectKBest(f_regression, k=3).fit_transform(data, target_data)
-with open("randomfile.txt", "w") as external_file:
-    external_file.write(str(data))
+
