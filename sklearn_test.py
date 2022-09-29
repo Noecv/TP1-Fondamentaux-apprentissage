@@ -16,6 +16,8 @@ x = numpy.delete(x, 0, 0)
 dates = [i[0] for i in x]
 
 # Permet de transformer un string en type date
+
+
 def str_date_to_datatime(str_date):
     return datetime.strptime(str_date, '%Y/%m/%d')
 
@@ -85,48 +87,58 @@ for i in range(0, int(len(dates))):
 # on concatene les deux tableaux
 x = numpy.concatenate((dates_times, x), axis=1)
 
+# Désormais nous pouvons passer au PCA
+
+#################################### PCA avec sklearn #################################################################
 sc = StandardScaler()
 skx1 = sc.fit_transform(x)
-pca = PCA(n_components=3 , svd_solver = 'full')
+pca = PCA(n_components=3, svd_solver='full')
 skx2 = pca.fit_transform(skx1)
 
 
+#################################### PCA Fait à la main #################################################################
+
+# On transforme notre tableau numpy en tableau de float
 x = x.astype(float)
 # on normalise les données
 x = (x - x.mean(axis=0)) / x.std(axis=0)
 
+# On vérifie que les données sont bien normalisées de la même manière
 print("fit identiques : ", numpy.all(numpy.equal(skx1, x)))
 
+# On créer un tableau de 0 avec 3 colones
 (n, p) = numpy.shape(x)
 Z = numpy.zeros((n, p))
-
 
 # On calcule la covariance de x et on obtient une matrice symétrique
 covx = numpy.cov(x, rowvar=False)
 
 
-# eigen value of covx
+# On récupère les valeurs propres et les vecteurs propres de la matrice de covariance necessaire pour le PCA
 valeurs_propres, vecteurs_propres = numpy.linalg.eig(covx)
 
-# calculate featureVector of eigenvalue
+# On créér un tableau de zero avant de le remplire avec les données dont les valeurs propres respectent le critère de kaiser
+# C'est une matrice des vecteurs propres dont les valeurs propres sont supérieures à 1
 FeatureVector = numpy.zeros((0, p))
-
 for i in range(0, len(valeurs_propres)):
     if valeurs_propres[i] > 1:
         FeatureVector = numpy.concatenate(
-            (FeatureVector, [vecteurs_propres[:,i]]), axis=0)
+            (FeatureVector, [vecteurs_propres[:, i]]), axis=0)
 
-
+# On fait la multiplcation matricielle entre x et la matrice transposée des vecteurs propres afin d'avoir notre nouveau set de données
 Xnew = numpy.dot(x, numpy.transpose(FeatureVector))
 #Xnew = numpy.transpose(FeatureVector)*x
 
 print("Xnew : ", Xnew)
 print("Xnew shape : ", numpy.shape(Xnew))
 
-# a comparer avec slecetkbest de sklearn
+#################################### Comparaison entre sklearn et notre algo #################################################################
 
 print("xnew sklearn :", skx2)
 print("Feature vector :", FeatureVector)
 print("Feature vector sklearn :", pca.components_)
-print("Feature vector identiques : ", numpy.equal(pca.components_, FeatureVector))
+print("Feature vector identiques : ",
+      numpy.equal(pca.components_, FeatureVector))
 print("matrices finales identiques : ", numpy.equal(skx2, Xnew))
+
+# Les prints renvoient false à cause des arrondis de float
